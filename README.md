@@ -522,6 +522,10 @@ it demonstrates workload inventory and image vulnerabilities, not runtime threat
 detection. Scanner V4 is disabled in the small lab; the pinned StackRox chart's
 legacy scanner is used. A local Helm post-renderer persists its vulnerability
 database and gives the initial SQL index build 1 GiB of maintenance memory.
+Its disposable scanner index uses a memory-backed volume capped at 3 GiB; the
+scanner container has a 4 GiB memory limit, including that volume. This avoids
+slow startup from small cache writes on the lab host's disk. This overlay is
+only for the bundled local lab, not an organization's existing ACS installation.
 An incomplete first import is rebuilt from the upstream dump on retry. The
 cluster reserves 2 GiB of free disk to avoid exhausting the host filesystem.
 
