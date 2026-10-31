@@ -1,0 +1,13 @@
+Jag har byggt ett lokalt DevSecOps-labb som kopplar Mattermost till ACS/StackRox för CVE-hantering.
+
+Utvecklarteam kan beställa en containerskanning direkt i sin kanal, undersöka en viss CVE och välja när automatiska rapporter ska skickas. Resultatet visas som ett kort svenskt rapportkort med risknivå och tydliga åtgärder. Den fullständiga rapporten bifogas som JSON.
+
+Identitet och namespace-behörigheter kontrolleras innan resultaten lämnas ut. Nya kritiska fynd kan ge en engångsnotis, så att samma CVE inte pingar teamet i varje rapport.
+
+Labbet använder riktiga tjänster: Mattermost, Kubernetes RBAC, Dex och StackRox Central/Scanner/Sensor. README:n visar installation och användarflöden med skärmbilder.
+
+Det är ett demonstrationsprojekt. En anpassad installation behöver verifieras i sin målmiljö.
+
+Kod och guide: https://github.com/SmidraClawd/cvebridge
+
+#DevSecOps #Kubernetes #Mattermost #StackRox #Cybersecurity

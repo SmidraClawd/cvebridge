@@ -1,0 +1,7 @@
+.local/
+.env
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+/PRIVAT_INSTALLATION.md
