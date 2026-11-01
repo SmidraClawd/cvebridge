@@ -1,107 +1,90 @@
-# CVEBridge · ACS-bot för Mattermost i Go
+<h1 align="center">CVEBridge</h1>
+<p align="center"><strong>Från CVE till åtgärd. Direkt i Mattermost.</strong></p>
 
-Beställ ACS/StackRox-skanningar, sök CVE:er och ställ in rapporttider direkt i
-Mattermost. Boten visar korta svenska rapportkort med prioriterade fynd,
-**Åtgärd** och en fullständig JSON-bilaga. Ingen separat webbapp, Dex eller
-OAuth-proxy behövs i Go-versionen.
+<p align="center">
+  <a href="https://github.com/SmidraClawd/cvebridge/actions/workflows/test.yml"><img src="https://github.com/SmidraClawd/cvebridge/actions/workflows/test.yml/badge.svg" alt="Go-kontroller"></a>
+  <a href="go.mod"><img src="https://img.shields.io/badge/Go-1.27-00ADD8?logo=go&amp;logoColor=white" alt="Go 1.27"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-16a085" alt="MIT-licens"></a>
+</p>
 
-## Bygg projektet
+CVEBridge kopplar **ACS/StackRox** till **Mattermost** så att teamet kan arbeta
+med containersårbarheter direkt i sin kanal. Starta en skanning, sök en CVE
+eller planera återkommande rapporter. Få en kort sammanfattning med prioriterade
+fynd, **Åtgärd** och en JSON-bilaga med alla detaljer.
 
-```sh
-go test -race ./...
-go vet ./...
-docker build -t cvebridge:go .
-docker run --rm cvebridge:go version
-```
+![CVEBridge visar en kompakt sårbarhetsrapport i Mattermost](assets/reports/04-skanningsrapport.jpg)
 
-Runtime och konfigurationsgenerator är skrivna i Go. `.env.example` innehåller
-korta grupper för OpenShift, Mattermost och ACS. Installationsnamespace är förvalt
-till `cvebridge`. Serviceadresser används inom klustret och botens adress räknas ut.
-Imageadress, tagg, bot-ID och upprepade schemamappar räknas ut automatiskt.
-Valfria undantag finns i `.env.advanced.example`.
-Riktiga företagsvärden ligger i en privat `.env` och skickas till imagen vid
-körning genom Kubernetes-konfiguration. Imagebygget kopierar endast Go-källkod
-och modulernas låsfiler.
+## Det här kan teamet göra
 
-Följ [utvecklarstarten](START_HAR.md) för koden. Den detaljerade guiden för
-företagets OpenShift-installation distribueras separat i den privata leveransen.
-
-## Använd i Mattermost
-
-| Skriv i godkänd privat teamkanal | Resultat |
+| Uppgift | Skriv i Mattermost |
 | --- | --- |
-| `/cve help` | Kommandon och hjälp, privat svar. |
-| `/cve scan my-team` | Begär nya imageskanningar och publicerar rapporten i kanalen. |
-| `/cve report my-team` | Rapporterar befintligt skanningsunderlag utan ny skanning. |
-| `/cve CVE-2021-44228 my-team` | Söker en CVE i images som används av aktiva poddar. |
-| `/cve status` | Rapporterar CVE-databasens verkliga aktualitet. |
-| `/cve schedule` | Öppnar Mattermost-formuläret för dagar, tider, namespaces och åtgärd. |
+| Skanna images som används av aktiva workloads | `/cve scan team-a` |
+| Undersök en specifik sårbarhet | `/cve CVE-2021-44228 team-a` |
+| Välj rapportdagar, tider och namespaces | `/cve schedule` |
+| Kontrollera CVE-databasens aktualitet | `/cve status` |
 
-Utelämna namespace för att använda hela beställningens tillåtna omfattning.
-En manuell beställning ändrar inte schemat. Aliaset `/acs` kräver ett eget
-registrerat slash-kommando och dess token i `MATTERMOST_ACS_COMMAND_TOKEN`.
+`/cve help` visar alla kommandon, även rapporter från befintliga skanningsresultat.
+Teamet arbetar i en godkänd privat kanal. Ansvarig admin konfigurerar integrationen
+en gång; den dagliga användningen sker direkt i Mattermost.
 
-Formuläret öppnas som en dialogruta inne i Mattermost. Välj **Spara inställningar**
-och **Utför** för att aktivera. Öppna igen för **Pausa**, **Provkör sparat schema**
-eller **Visa körhistorik**. Provkörning använder det senast sparade schemat.
-Vanliga användare behöver ingen Mattermost-adminroll. Den första konfigurationen
-av botkonto, slash-kommando och kanalåtkomst görs av integrationsansvarig.
+<details>
+<summary><strong>Visa schemaformuläret</strong></summary>
 
-Bilderna nedan är från projektets tidigare, riktiga Mattermost-labb. Go-porten
-använder samma dialogfält och rapportprincip; bilderna är referensbilder,
-inte bevis på en genomförd företagsinstallation.
+Välj dagar, tider och namespaces. Spara, pausa, provkör ett sparat schema eller
+visa körhistoriken i samma formulär.
 
-![Schemaformuläret inne i Mattermost](assets/native-schedule/01-schema-i-mattermost.jpg)
+![Schemalägg rapporter inne i Mattermost](assets/native-schedule/01-schema-i-mattermost.jpg)
 
-![Åtgärder i Mattermost-formuläret](assets/native-schedule/02-atgarder-i-formularet.jpg)
+</details>
 
-![Rapport med åtgärd och JSON-bilaga](assets/reports/04-skanningsrapport.jpg)
+<sub>Referensbilder från det tidigare lokala Mattermost-labbet. Go-versionen använder
+samma rapport- och formulärprinciper.</sub>
 
-## Åtkomst och drift
+## Så hänger det ihop
 
-- Ett Mattermost-botkonto utan administratörsroll och en godkänd **privat** kanal.
-- Botens ID verifieras med dess token via Mattermost `/users/me`; kontot ska vara
-  en bot utan administratörsroll. Stabila Mattermost-användar-ID:n kopplas uttryckligen till exakta klusterkonton
-  i `MATTERMOST_KUBE_USER_MAP`. Redigerbara profilnamn och e-postadresser används inte.
-- Kubernetes SubjectAccessReview kontrollerar `list deployments` före arbetet,
-  under skanningen och före leverans. Endast `system:authenticated` antas för
-  människor; gruppbaserad åtkomst måste kompletteras med godkända direkta
-  användarbindningar. Boten gissar inga AD-grupper.
-- `common` delar bara namespaces som alla kanalmedlemmar har verifierad åtkomst till.
-  `requester` är ett uttryckligt godkännande att dela beställarens tillåtna fynd
-  med hela kanalen. Kanalhistorik finns kvar även när medlemmar byts.
-- Schemalagda körningar använder en separat rapporttjänstidentitet och en
-  särskild StackRox-token. Alla kanalmedlemmars identiteter kontrolleras även då.
-- CVE-bevakningen sparas på en PVC. Första kompletta rapporten skapar normalt
-  ett utgångsläge utan ping. En ny CVE över larmgränsen kan sedan ge `@channel`.
-  Ett felaktigt eller ofullständigt underlag visas som luckor, aldrig som rent.
-- Kör **en replika**, `Recreate`, med beständig SQLite-databas. Detta är inte en
-  HA-installation. Säkerhetskopiera PVC:n. En krasch mellan bekräftat Mattermost-inlägg
-  och sparad SQLite-transaktion kan ge ett upprepat larm; exakt-en-gång-leverans garanteras inte.
-
-Botens `/healthz` visar att processen är igång. Det bevisar inte att ACS,
-Mattermost och RBAC fungerar; kontrollera en verklig skanning efter installation.
-
-## Varför Deployment och inte operator?
-
-En Deployment räcker för en botinstallation med image, konfiguration, Secret,
-Service och PVC. En extern HTTPS-route är ett valfritt undantag. En operator blir relevant när ni vill hantera många
-installationer med en egen resurs, till exempel `CVEBridge`, och automatisera
-uppgraderingar och återställning. Ingen operator eller CRD ingår i den här versionen.
-
-## Utveckla och testa
-
-```sh
-go test -race ./...
-go vet ./...
-go build ./cmd/cvebridge
+```mermaid
+flowchart LR
+    Mattermost <--> Bot["CVEBridge · Go"]
+    Bot <-->|Skanningar och fynd| Central["ACS Central"]
+    Sensor["Klustrets Sensor"] <-->|Klusterdata och styrning| Central
+    Bot -->|Behörighetskontroll| Kubernetes["Kubernetes API"]
 ```
 
-Go 1.27.3 används av containerbygget och CI. Runtime är en statisk Go-binär i
-`scratch`, med CA-certifikat och inbyggda tidszoner. Python krävs inte för bygge,
-installation eller botens körning. Den tidigare implementationen och dess
-labbverktyg ligger under `legacy/python/` som historisk referens; använd inte
-deras installationskommandon för Go-versionen.
+Sensorn skickar klusterdata till Central. Boten använder **Centrals API** för
+skanningar och fynd, och klustrets **Kubernetes-API** för namespace-behörigheter.
+Central kan finnas i samma kluster eller ett annat. Scheman och CVE-bevakning
+sparas så att rapporter kan återkomma och upprepade kritiska larm kan begränsas.
 
-Se [arkitektur](docs/ARKITEKTUR.md). OpenShift-installationen måste
-verifieras i ert labb med era riktiga adresser, tokens, roller och image-registry.
+## Bygg och utforska
+
+```bash
+git clone https://github.com/SmidraClawd/cvebridge.git
+cd cvebridge
+go test -race ./...
+docker build -t cvebridge:dev .
+```
+
+Go 1.27.3 används i CI och Dockerfile. En ansluten installation behöver Mattermost,
+ACS Central, godkända Kubernetes-behörigheter och beständig lagring.
+Börja med [inställningsmallen](.env.example) och [utvecklarguiden](START_HAR.md).
+Företagsvärden ligger i din lokala `.env`; imagen innehåller programkoden.
+
+## Status
+
+Skriven i **Go**, med SQLite för scheman och bevakning. En vanlig Deployment
+med en replika och en intern Service som standard. Mattermost måste nå tjänsten.
+
+**32 Go-testfunktioner**, race-kontroller, statisk analys och containerbygge ingår
+i CI. Manuell skanning, CVE-sökning och sparade scheman har också provats mot ett
+riktigt lokalt Mattermost- och ACS-labb. Installation i företagets OpenShift-miljö
+behöver verifieras där.
+
+[Arkitektur](docs/ARKITEKTUR.md) · [Åtkomstmodell](docs/ACCESS.md) · [Verifiering](docs/VERIFIERING.md)
+
+## Bidra
+
+Har du ett arbetsflöde som kan bli bättre? [Öppna ett issue](https://github.com/SmidraClawd/cvebridge/issues)
+eller skicka en pull request. Om projektet hjälper ditt team får du gärna ge det
+en stjärna eller dela det vidare.
+
+[MIT-licens](LICENSE).

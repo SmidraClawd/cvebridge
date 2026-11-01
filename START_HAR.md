@@ -1,23 +1,38 @@
-# Utveckla Go-versionen
+# Bygg och utforska CVEBridge
 
-```sh
+Använd Go 1.27.3, samma version som i CI och Dockerfile.
+
+```bash
 go mod download
 go test -race ./...
 go vet ./...
 go build -o bin/cvebridge ./cmd/cvebridge
-docker build -t cvebridge:go .
-docker run --rm cvebridge:go version
+docker build -t cvebridge:dev .
+docker run --rm cvebridge:dev version
 ```
 
-Go 1.27.3 används i CI och Dockerfile. Tester körs med lokala HTTP-testservrar och
-en tillfällig SQLite-databas; de behöver inga företagsuppgifter eller ett kluster.
+Testerna använder lokala HTTP-servrar och tillfälliga SQLite-databaser. De behöver
+varken företagsuppgifter eller tillgång till ett kluster.
 
-`cmd/cvebridge` startar boten. `internal/bridge` innehåller API-klienter,
-behörighetskontroller, Mattermost-dialoger, rapporter, schemaläggning, state och
-konfigurationsgenerator. `.env.example` är en generisk inställningsmall.
-Den riktiga `.env` och genererade filer ska hållas privata.
+## Hitta i projektet
 
-För en verklig anslutning behövs Mattermost, ACS/StackRox och Kubernetes RBAC.
-Källkodstesterna ersätter inte ett installationstest i ett kluster.
-Den detaljerade OpenShift-installationsguiden finns i projektets privata leverans.
-Se README för användning och referensbilder från labbet.
+| Sökväg | Innehåll |
+| --- | --- |
+| `cmd/cvebridge` | Start av boten och konfigurationsgenerator. |
+| `internal/bridge` | ACS- och Mattermost-klienter, åtkomstkontroll, rapporter, formulär och jobb. |
+| `internal/workflow` | Tester för container- och registryflödet. |
+| `.env.example` | Kort, generell inställningsmall. |
+| `.env.advanced.example` | Valfria undantag från standardinställningarna. |
+| `cvebridge.sh` | Hjälpskript för imagebygge, push och manifestgenerering. |
+
+En ansluten installation behöver Mattermost, ACS Central och godkända
+Kubernetes-behörigheter. Sensorn skickar klusterdata till Central, och boten
+hämtar dessa via Centrals API. Central kan stå i ett annat kluster; då måste
+adressen vara nåbar från botens kluster.
+
+De interna serviceadresserna i mallen är exempel. Kontrollera service, namespace
+och port för er installation. Håll `.env`, CA-filer och genererade Secret-manifest privata.
+
+Se [arkitektur](docs/ARKITEKTUR.md), [åtkomstmodell](docs/ACCESS.md) och
+[verifiering](docs/VERIFIERING.md). Runtime är Go; `legacy/python/` innehåller den
+tidigare implementationen och labbverktyg som historisk referens.

@@ -1,31 +1,27 @@
-# Verifiering av Go-porten
+# Verifiering
 
-Kontrollerat 2026-11-01:
+Kontrollerat 2026-11-01 i ett lokalt labb. Det här är inte en verifierad eller
+certifierad företagsinstallation i OpenShift.
 
-- 29 Go-testfunktioner godkända med race detector, inklusive API-testservrar,
-  behörighetskontroller, callback-ägarskap, återanvändningsskydd, revisionskonflikter,
-  DST-tider, sparad state, larmbekräftelser och manifestgenerering.
-- Korta `.env` expanderas till godkända kanal-/schemamappar och intern
-  registry-adress. Push-kommandot testas med simulerade `oc`- och containerkommandon:
-  routen hittas automatiskt, namespace kontrolleras före push och inloggning
-  använder token på stdin. Saknad route eller namespace stoppar pushen.
-- `go vet ./...` godkänd och containerimage byggd från Go-källkoden.
-- 11 kontroller mot det befintliga lokala Kubernetes-labbet med riktig Mattermost
-  och ACS/StackRox: vanlig användare kör manuell skanning, CVE-sökning och
-  provkörning av sparat schema direkt i Mattermost. Rapportkort och JSON-bilagor
-  levereras, nya skanntider verifieras, schema bevaras och befintliga kritiska
-  CVE:er orsakar ingen upprepad kanalping.
-- Manuell körning och schemakörning är även verifierade efter att bot-ID-fältet
-  togs bort; botens identitet verifieras via dess autentiserade Mattermost-profil.
-- Den manuella skanningen omfattade en image; schemakörningen två images och
-  189 råa fyndrader, med noll misslyckade images.
-- Slutimagen startar med read-only rotfilsystem under UID 98765 och därefter
-  UID 98766 mot samma beständiga SQLite-volume. Byggskriptets riktiga render-kommando
-  skapar privata manifest med filrättigheter 0600 och rätt image.
-- Kubernetes-objekten i den genererade installationen accepterades av labbets
-  API med server-side dry-run. OpenShift Route kunde inte testas av detta
-  Kubernetes-API och ingår inte i det påståendet.
+| Kontroll | Resultat |
+| --- | --- |
+| Go-tester | 32 testfunktioner godkända med race detector. |
+| Statisk analys | `go vet ./...` godkänd. |
+| Container | Go-image byggd. |
+| Manifestgenerering | Riktigt byggskript och den byggda imagen provade i två namespaces: intern callback och imageadress, ingen Route som standard. Uttryckligt HTTPS-undantag kontrollerat. |
+| Registryflöde | Simulerade `oc`- och containerkommandon verifierar routeuppslagning, namespace-kontroll, token på stdin och uttrycklig intern push-adress. |
+| Riktig integration | 11 tidigare kontroller mot lokala Mattermost och ACS: manuell skanning, CVE-sökning, formulär och provkörning av sparat schema. |
 
-Detta är ett lokalt labbtest, inte en verifierad installation i företagets
-OpenShift-kluster. Nya adresser, certifikat, tokens, registry, lagring, roller och
-Mattermost-inställningar behöver fortfarande verifieras där.
+Den riktiga manuella skanningen omfattade en image. Schemakörningen omfattade två
+images och 189 råa fyndrader, med noll misslyckade images. Åtgärd och JSON-bilagor,
+nya skanntider och bevarat schema kontrollerades. Befintliga kritiska CVE:er gav
+ingen upprepad kanalping. Automatisk verifiering av botidentiteten provades också.
+
+En tidigare Go-image verifierades med read-only rotfilsystem och samma beständiga
+SQLite-lagring under två olika icke-root-UID:n. Tidigare Kubernetes-resurser
+accepterades av labbets API med server-side dry-run; den kontrollen omfattade
+inte OpenShift Route-resurser.
+
+Push till företagets registry och installation i företagets OpenShift-kluster
+har inte utförts. Nätverk, TLS, credentials, behörigheter och lagring behöver
+verifieras i den avsedda miljön.
