@@ -1,13 +1,16 @@
-Jag har byggt ett lokalt DevSecOps-labb som kopplar Mattermost till ACS/StackRox för CVE-hantering.
+Jag har byggt CVEBridge: en Go-bot som kopplar ACS/StackRox till Mattermost.
 
-Utvecklarteam kan beställa en containerskanning direkt i sin kanal, undersöka en viss CVE och välja när automatiska rapporter ska skickas. Resultatet visas som ett kort svenskt rapportkort med risknivå och tydliga åtgärder. Den fullständiga rapporten bifogas som JSON.
+Teamet kan beställa en ny imageskanning, söka en CVE och ställa in rapportdagar
+och tider direkt i Mattermost. Rapporterna visar prioriterade fynd, en tydlig
+åtgärd och en JSON-bilaga med detaljer. Boten kontrollerar namespace-behörigheter
+mot Kubernetes och sparar CVE-bevakning för att minska upprepade larm.
 
-Identitet och namespace-behörigheter kontrolleras innan resultaten lämnas ut. Nya kritiska fynd kan ge en engångsnotis, så att samma CVE inte pingar teamet i varje rapport.
+Installationen utgår från en privat .env: bygg och pusha din egen containerimage
+och applicera Deployment, Secret, Service, Route och PVC i OpenShift.
 
-Labbet använder riktiga tjänster: Mattermost, Kubernetes RBAC, Dex och StackRox Central/Scanner/Sensor. README:n visar installation och användarflöden med skärmbilder.
+Källkod: https://github.com/SmidraClawd/cvebridge
 
-Det är ett demonstrationsprojekt. En anpassad installation behöver verifieras i sin målmiljö.
+Det här är ett projekt för labb och utvärdering. Installation i en företagsmiljö
+behöver verifieras med företagets behörigheter, integrationer och driftkrav.
 
-Kod och guide: https://github.com/SmidraClawd/cvebridge
-
-#DevSecOps #Kubernetes #Mattermost #StackRox #Cybersecurity
+#Golang #OpenShift #Kubernetes #DevSecOps #Mattermost #StackRox
