@@ -33,6 +33,15 @@ Företagskonfiguration tillförs vid körning via Kubernetes-konfiguration och S
 En vanlig Deployment kör en worker och använder SQLite på PVC. Generatorn skapar
 en intern Service som standard; extern HTTPS-route kan väljas uttryckligen.
 
+Lagringen använder klustrets standard-StorageClass om `STATE_NETWORK_URL` är tomt.
+Med en SMB- eller NFS-sökväg skapas i stället en statisk PV i bootstrap-filen och
+en PVC som binds till just den volymen. Databasen finns alltid på
+`/data/requests.sqlite3`. SMB kräver `smb.csi.k8s.io` och en lagrings-Secret;
+anslutningsuppgifterna tillförs aldrig botens container. PV:n använder `Retain`.
+Filservern behöver verifierad fillåsning, synkronisering och skrivrättigheter för
+podens UID/grupp. SQLite använder rollback-journal och full synkronisering,
+med en enda botreplika. Enbart en nätverkssökväg garanterar inte fungerande lagring.
+
 SQLite sparar scheman, historik, kortlivade formulär och bekräftade CVE:er.
 Missade schematider spelas inte upp som en backlogg. Larm sparas efter att
 Mattermost bekräftat inlägget. En krasch mellan publicering och lagring kan ge

@@ -15,5 +15,6 @@ __pycache__/
 .venv/
 .DS_Store
 /PRIVAT_INSTALLATION.md
+/docs/NATVERKSLAGRING.md
 
 /certs/

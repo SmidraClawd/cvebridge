@@ -74,7 +74,7 @@ Företagsvärden ligger i din lokala `.env`; imagen innehåller programkoden.
 Skriven i **Go**, med SQLite för scheman och bevakning. En vanlig Deployment
 med en replika och en intern Service som standard. Mattermost måste nå tjänsten.
 
-**32 Go-testfunktioner**, race-kontroller, statisk analys och containerbygge ingår
+**37 Go-testfunktioner**, race-kontroller, statisk analys och containerbygge ingår
 i CI. Manuell skanning, CVE-sökning och sparade scheman har också provats mot ett
 riktigt lokalt Mattermost- och ACS-labb. Installation i företagets OpenShift-miljö
 behöver verifieras där.
