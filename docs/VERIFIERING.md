@@ -5,11 +5,10 @@ certifierad företagsinstallation i OpenShift.
 
 | Kontroll | Resultat |
 | --- | --- |
-| Go-tester | 39 testfunktioner godkända med race detector. |
+| Go-tester | 37 testfunktioner godkända med race detector. |
 | Statisk analys | `go vet ./...` godkänd. |
 | Container | Go-image byggd. |
 | Manifestgenerering | Riktigt byggskript och den byggda imagen provade i två namespaces: intern callback och imageadress, ingen Route som standard. Uttryckligt HTTPS-undantag kontrollerat. |
-| Befintlig PVC | Tester verifierar att rätt claim monteras på /data utan att PV, PVC eller lagrings-Secret genereras. Ogiltiga namn och motstridiga lagringsinställningar nekas. Riktigt hjälpskript och ny image verifierade med två claim-namn; Deployment accepterad av labbets API med server-side dry-run. |
 | Nätverkslagring | Tester godkända för UNC/SMB och NFS, statisk PV/PVC-bindning, Retain, separata SMB-Secrets och felaktiga inställningar. Riktigt hjälpskript och ny image verifierade för SMB, UNC, NFS och standardlagring. Nätverks-PV/PVC accepterade med server-side dry-run i lokala labbet. SQLite-journal och bevarad state testade lokalt. |
 | Registryflöde | Simulerade `oc`- och containerkommandon verifierar routeuppslagning, namespace-kontroll, token på stdin och uttrycklig intern push-adress. |
 | Riktig integration | 11 tidigare kontroller mot lokala Mattermost och ACS: manuell skanning, CVE-sökning, formulär och provkörning av sparat schema. |
