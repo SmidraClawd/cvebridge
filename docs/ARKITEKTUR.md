@@ -33,7 +33,9 @@ Företagskonfiguration tillförs vid körning via Kubernetes-konfiguration och S
 En vanlig Deployment kör en worker och använder SQLite på PVC. Generatorn skapar
 en intern Service som standard; extern HTTPS-route kan väljas uttryckligen.
 
-Lagringen använder klustrets standard-StorageClass om `STATE_NETWORK_URL` är tomt.
+Med `STATE_EXISTING_PVC` monteras en färdig PVC i botens namespace. Generatorn
+skapar eller ändrar då ingen PV, PVC eller lagrings-Secret. Utan befintlig PVC
+och nätverkssökväg används klustrets standard-StorageClass.
 Med en SMB- eller NFS-sökväg skapas i stället en statisk PV i bootstrap-filen och
 en PVC som binds till just den volymen. Databasen finns alltid på
 `/data/requests.sqlite3`. SMB kräver `smb.csi.k8s.io` och en lagrings-Secret;
